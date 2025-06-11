@@ -14,14 +14,14 @@ python3 --version
 ### Create an environment and install dependencies
 #### Mac/Linux/WSL
 ```
-$ python3 -m venv code-gen-env
-$ source code-gen-env/bin/activate
+$ python3 -m venv vibe-code-env
+$ source vibe-code-env/bin/activate
 $ pip install -r requirements.txt
 ```
 #### Windows Powershell
 ```
-PS> python3 -m venv code-gen-env
+PS> python3 -m venv vibe-code-env
 PS> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-PS> code-gen-env\scripts\activate
+PS> vibe-code-env\scripts\activate
 PS> pip install -r requirements.txt
 ```
