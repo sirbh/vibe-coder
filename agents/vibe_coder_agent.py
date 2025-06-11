@@ -2,6 +2,7 @@ import os, getpass
 from dotenv import load_dotenv
 
 from typing import List, Dict
+import json
 
 import subprocess
 
@@ -31,13 +32,10 @@ def read_file_as_string(filepath: str) -> str:
     with open(filepath, "r", encoding="utf-8") as f:
         return f.read()
 
-system_prompt = read_file_as_string("prompts/system.txt")
 
 
-@tool
-def get_project_files(
-    root_dir: str,
-) -> list[dict[str, str]]:
+
+def get_project_files() -> list[dict[str, str]]:
     """
     Recursively reads code files from the given project directory and returns a list
     of { "path": ..., "content": ... } dictionaries.
@@ -46,6 +44,7 @@ def get_project_files(
     Returns:
         List of { "path": str, "content": str } objects.
     """
+    root_dir = "projects/portfolio"  # Change this to your project directory
     include_exts = [".ts", ".tsx", ".js", ".jsx", ".json", ".css", ".html", ".md"]
     exclude_dirs = set(["node_modules", ".git", ".next", "build", "dist", "public", "out"])
     ignore_files = set(["package-lock.json", "yarn.lock"])
@@ -79,7 +78,7 @@ def get_project_files(
     return file_objects
 
 
-@tool
+
 def create_next_app(project_name: str) -> str:
     """
     Creates a new Next.js app using npx in the specified target directory with the given project name.
@@ -108,29 +107,31 @@ def create_next_app(project_name: str) -> str:
 
 
 @tool
-def apply_updates(root:str,updated_files: List[Dict[str, str]]) -> None:
+def apply_updates(updated_files: List[Dict[str, str]]) -> None:
     """
-    Writes updated files into the given root project directory.
+    Writes updated project files with updated files.
     
     Args:
-        root: Root directory of your project
         updated_files: List of {"path": ..., "content": ...} to write
     """
+    root = "projects/portfolio"  # Change this to your project directory
     for file in updated_files:
         path = os.path.join(root, file["path"])
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(file["content"])
 
-print(get_project_files("projects/lawrm"))
 
 
 
-tools = [create_next_app, apply_updates, get_project_files]
+tools = [apply_updates]
 
 # 2. LLM setup with tools
 llm = ChatOpenAI(model="gpt-4o", temperature=0)
 llm_with_tools = llm.bind_tools(tools, parallel_tool_calls=False)
+
+system_prompt = read_file_as_string("prompts/system.txt").replace("{{PROJECT_FILES_HERE}}",json.dumps(get_project_files(),indent=2))
+
 
 # 3. System message
 sys_msg = SystemMessage(content=system_prompt)
