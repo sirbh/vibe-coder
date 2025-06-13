@@ -1,0 +1,12 @@
+here is the user Input
+
+{{USER_MESSAGE}}
+
+here is the project details
+
+
+project name: {{PROJECT_NAME}}
+
+project container: {{PROJECT_CONTAINER}}
+
+handle user input properly
