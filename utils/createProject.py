@@ -1,12 +1,8 @@
-import subprocess
-import random
-import socket
-import string
-import time
-import requests
-from langchain.tools import tool
+import subprocess, random, socket, string, time, requests, os
+
 from enum import Enum
-from typing import TypedDict, Literal
+from typing import TypedDict
+
 
 def find_free_port() -> int:
     """Find a free port on the host system."""
@@ -18,8 +14,10 @@ def random_container_name(prefix="proj"):
     return f"{prefix}-" + ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
 
 def wait_for_app_ready(port: int, timeout: int = 120) -> bool:
-    """Poll localhost:<port> until the app responds or timeout occurs."""
-    url = f"http://localhost:{port}"
+
+    host = os.getenv("HOST", "localhost")
+    print(os.getenv("HOST"))
+    url = f"http://{host}:{port}"
     for _ in range(timeout):
         try:
             res = requests.get(url)

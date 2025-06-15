@@ -17,8 +17,8 @@ from openapi_spec_validator import validate_spec
 from openapi_spec_validator.exceptions import OpenAPISpecValidatorError
 import yaml
 
-from tools.getFiles import get_project_files_from_container
-from tools.updateFiles import apply_updates_to_container
+from utils.getFiles import get_project_files_from_container
+from utils.updateFiles import apply_updates_to_container
 
 # Load your OpenAI key
 load_dotenv()

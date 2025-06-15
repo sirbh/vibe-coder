@@ -28,7 +28,7 @@ export default function ChatPanel({ port, projectName, containerName }: IChatPan
     try {
       const res = await axiosInstance.post("/chat", {
         message: trimmed,
-        poject_name: projectName, // Note: typo preserved intentionally
+        project_name: projectName, // Note: typo preserved intentionally
         container_name: containerName,
       });
 
