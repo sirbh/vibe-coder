@@ -1,9 +1,11 @@
 ## Setup
 
-### Python Version
+### Requirements
 
-To get the most out of this project, please ensure you're using **Python 3.11 or later**.
-This version is required for optimal compatibility with LangGraph.
+* **Python 3.11 or later**
+* **Docker and Docker Compose** (required to run Postgres and other services locally)
+
+Ensure you have Docker installed and running. You can download Docker from [https://www.docker.com/](https://www.docker.com/).
 
 Check your Python version with:
 
@@ -14,6 +16,16 @@ python3 --version
 ---
 
 ### Backend Setup (FastAPI + LangGraph)
+
+#### Start required services with Docker
+
+Use Docker to start the PostgreSQL database:
+
+```bash
+docker-compose up -d
+```
+
+Make sure the `docker-compose.yml` file includes a Postgres service with credentials that match your `.env`.
 
 #### Create a virtual environment and install dependencies
 
@@ -40,7 +52,7 @@ Create a `.env` file in the root directory with the following content:
 
 ```env
 HOST="127.0.0.1"
-DB_URL="postgresql://vibe_coder_dev:password@localhost:5432/postgres" // if you run docker compose
+DB_URL="postgresql://vibe_coder_dev:password@localhost:5432/postgres"
 OPENAI_API_KEY=
 ```
 
