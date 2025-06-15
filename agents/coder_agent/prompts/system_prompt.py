@@ -25,7 +25,7 @@ You may be asked to:
 Project Input Format:
 The project will be passed as a list of files in this format:
 
-{ "path": string, "content": string }
+{{ "path": string, "content": string }}
 
 Important Rules:
 - Always fetch and review existing project files before making changes.
