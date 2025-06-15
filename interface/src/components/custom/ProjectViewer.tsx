@@ -17,14 +17,14 @@ interface IProjectViewerProps {
   projectName: string;
 }
 
-export default function ProjectViewer({containerName,projectName}: IProjectViewerProps) {
+export default function ProjectViewer({ containerName, projectName }: IProjectViewerProps) {
   const [files, setFiles] = useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = useState<FileNode | null>(null);
-
-
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFiles = async () => {
+      setLoading(true);
       try {
         const res = await axiosInstance.get("/project-files", {
           params: {
@@ -35,9 +35,10 @@ export default function ProjectViewer({containerName,projectName}: IProjectViewe
         const flatFiles = res.data.files as { path: string; content: string }[];
         const fileTree = buildFileTree(flatFiles);
         setFiles(fileTree);
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error fetching project files:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchFiles();
@@ -101,7 +102,11 @@ export default function ProjectViewer({containerName,projectName}: IProjectViewe
       {/* Sidebar */}
       <div className="w-1/3 bg-zinc-900 text-white overflow-auto p-4 py-12">
         <h2 className="text-xl font-semibold mb-4">📁 Project Files</h2>
-        <FileTree nodes={files} />
+        {loading ? (
+          <p className="text-zinc-400 animate-pulse">🔄 Loading project files...</p>
+        ) : (
+          <FileTree nodes={files} />
+        )}
       </div>
 
       {/* Editor */}
@@ -121,7 +126,6 @@ export default function ProjectViewer({containerName,projectName}: IProjectViewe
           <p className="text-white">Select a file to view</p>
         )}
       </div>
-      
     </div>
   );
 }

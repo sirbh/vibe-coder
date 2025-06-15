@@ -13,7 +13,7 @@ def find_free_port() -> int:
 def random_container_name(prefix="proj"):
     return f"{prefix}-" + ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
 
-def wait_for_app_ready(port: int, timeout: int = 120) -> bool:
+def wait_for_app_ready(port: int, timeout: int = 180) -> bool:
 
     host = os.getenv("HOST", "localhost")
     print(os.getenv("HOST"))
@@ -53,12 +53,18 @@ def create_next_project_container(project_name: str) -> ContainerLaunchResult:
         "-p", f"{port}:3000",
         "node:18",
         "bash", "-c",
-        f"npm install -g create-next-app@15.3.3 && "
-        f"create-next-app {project_name} --use-npm --yes && "
-        f"cd {project_name} && "
-        f"sed -i 's/next dev/next dev -H 0.0.0.0/' package.json && "
-        f"npm install && "
-        f"npm run dev"
+        f"""
+        npm install -g create-next-app@15.3.3 && \
+        create-next-app {project_name} --use-npm --yes && \
+        cd {project_name} && \
+        npx shadcn@latest init -b zinc -y -f && \
+        npx shadcn@latest add -a -y && \
+        npm install react-hook-form && \
+        npm i zod && \
+        sed -i 's/next dev/next dev -H 0.0.0.0/' package.json && \
+        npm install && \
+        npm run dev
+        """
     ]
 
     try:
@@ -72,5 +78,6 @@ def create_next_project_container(project_name: str) -> ContainerLaunchResult:
         "container_name": container_name,
         "port": port
     }
+
 
 

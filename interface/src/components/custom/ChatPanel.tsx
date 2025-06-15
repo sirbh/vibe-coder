@@ -43,14 +43,12 @@ export default function ChatPanel({ port, projectName, containerName }: IChatPan
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder("utf-8")
-      // let botMessage = ""
 
       while (true) {
         const { value, done } = await reader.read()
         if (done) break
 
         const chunk = decoder.decode(value, { stream: true })
-        // botMessage += chunk
 
         setMessages((prev) => {
           const last = prev[prev.length - 1]
@@ -103,13 +101,23 @@ export default function ChatPanel({ port, projectName, containerName }: IChatPan
         </div>
 
         <div className="p-4 border-t border-zinc-700">
-          <input
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type a message..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !loading) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
+            placeholder={loading ? "Please wait..." : "Type a message..."}
             disabled={loading}
-            className="w-full bg-zinc-800 text-white border border-zinc-600 rounded px-3 py-2 text-sm outline-none focus:ring focus:ring-blue-500"
+            rows={2}
+            className={`w-full resize-none border rounded px-3 py-2 text-sm outline-none focus:ring ${
+              loading
+                ? "bg-zinc-700 text-zinc-400 border-zinc-600 cursor-not-allowed"
+                : "bg-zinc-800 text-white border-zinc-600 focus:ring-blue-500"
+            }`}
           />
         </div>
       </div>
