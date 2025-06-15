@@ -16,9 +16,9 @@ from utils.fileReader import read_file_as_string
 from langchain_core.messages import HumanMessage
 from langgraph.store.postgres import PostgresStore
 
-from agents.coder_agent.agent import graph
+from agents.coder_agent.agent import create_graph
 
-from db.memory import store,checkpointer, store_ctx, checkpointer_ctx
+from db.memory import init_memory
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, status
@@ -28,18 +28,22 @@ from fastapi.responses import StreamingResponse
 from agents.coder_agent.prompts.system_prompt import MODEL_SYSTEM_MESSAGE
 
 
-
 user_input = read_file_as_string("prompts/user_prompt.txt")
 DB_URI = os.environ.get("DB_URL")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    store, checkpointer, store_ctx, checkpointer_ctx = await init_memory()
     app.state.store = store
     app.state.checkpointer = checkpointer
+    app.state.graph = create_graph(store, checkpointer)
+
     yield
-    store_ctx.__exit__(None, None, None)
-    checkpointer_ctx.__exit__(None, None, None)
+
+    await store_ctx.__aexit__(None, None, None)
+    await checkpointer_ctx.__aexit__(None, None, None)
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -81,7 +85,7 @@ def read_files(container_name: str, project_name: str):
     )
 
 @app.get("/api/create-project/")
-def create_project(project_name: str):
+async def create_project(project_name: str):
     """
     Creates a new Next.js project with the given name.
     """
@@ -103,7 +107,7 @@ def create_project(project_name: str):
                 "container_name": resp["container_name"]
             }
 
-        store.put(namespace_for_memory, key, value)
+        await app.state.store.aput(namespace_for_memory, key, value)
 
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
@@ -140,29 +144,36 @@ def chat(payload: ChatRequest):
 
     messages = [HumanMessage(content=payload.message)]
 
-    # async def even_generator():
-    #     async for event in graph.astream_events(
-    #         {"messages": messages, "summary": ""},
-    #         config=config,
-    #         version="v2"
-    #     ):
-    #         if event["event"] == "on_chat_model_stream" and event['metadata'].get('langgraph_node','') == "assistant":
-    #             data = event["data"]
-    #             # Yield text to client
-    #             yield data["chunk"].content
+    graph = app.state.graph
+    if not graph:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Graph is not initialized."
+        )
+
+    async def even_generator():
+        async for event in graph.astream_events(
+            {"messages": messages, "summary": ""},
+            config=config,
+            version="v2"
+        ):
+            if event["event"] == "on_chat_model_stream" and event['metadata'].get('langgraph_node','') == "assistant":
+                data = event["data"]
+                # Yield text to client
+                yield data["chunk"].content
     
-    # return StreamingResponse(even_generator(), media_type="text/plain")
+    return StreamingResponse(even_generator(), media_type="text/plain")
 
 
 
-    result = graph.invoke({"messages": messages, "summary":""},config=config)
+    # result = graph.invoke({"messages": messages, "summary":""},config=config)
 
-    result_message = result["messages"][-1]
+    # result_message = result["messages"][-1]
 
-    print(f"Result message: {result_message}")
+    # print(f"Result message: {result_message}")
 
-    return {
-        "message": f"{result_message.content}"
-    }
+    # return {
+    #     "message": f"{result_message.content}"
+    # }
 
 

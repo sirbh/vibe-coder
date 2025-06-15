@@ -1,15 +1,14 @@
-# emmey.py
 import os
-from langgraph.store.postgres import PostgresStore
-from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.store.postgres.aio import AsyncPostgresStore
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 DB_URI = os.environ.get("DB_URL")
 
-# Create and enter manually
-store_ctx = PostgresStore.from_conn_string(DB_URI)
-store = store_ctx.__enter__()
+async def init_memory():
+    store_ctx = AsyncPostgresStore.from_conn_string(DB_URI)
+    checkpointer_ctx = AsyncPostgresSaver.from_conn_string(DB_URI)
 
-checkpointer_ctx = PostgresSaver.from_conn_string(DB_URI)
-checkpointer = checkpointer_ctx.__enter__()
+    store = await store_ctx.__aenter__()
+    checkpointer = await checkpointer_ctx.__aenter__()
 
-__all__ = ["store", "checkpointer", "store_ctx", "checkpointer_ctx"]
+    return store, checkpointer, store_ctx, checkpointer_ctx
