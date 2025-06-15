@@ -1,13 +1,22 @@
-## Setup
+# 🧠 Vibe Coder — Natural Language to Code
 
-### Requirements
+An app where users can create full-stack projects by simply describing them in natural language.  
+It uses **generative AI (OpenAI + LangGraph + LangChain)** to generate project structure and code.  
+The app scaffolds an empty **Next.js** project and incrementally updates it according to the user's input, all in real time.
 
-* **Python 3.11 or later**
-* **Docker and Docker Compose** (required to run Postgres and other services locally)
+---
 
-Ensure you have Docker installed and running. You can download Docker from [https://www.docker.com/](https://www.docker.com/).
+## ⚙️ Setup Guide
 
-Check your Python version with:
+### ✅ Requirements
+
+- **Python 3.11 or later**
+- **Docker + Docker Compose** (required for running Postgres and other local services)
+
+> 📦 Make sure Docker is installed and running:  
+> [https://www.docker.com/](https://www.docker.com/)
+
+Check Python version:
 
 ```bash
 python3 --version
@@ -15,19 +24,21 @@ python3 --version
 
 ---
 
-### Backend Setup (FastAPI + LangGraph)
+### 🚀 Backend Setup (FastAPI + LangGraph)
 
-#### Start required services with Docker
+#### 🔌 Start services with Docker
 
-Use Docker to start the PostgreSQL database:
+Start the PostgreSQL service using Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-Make sure the `docker-compose.yml` file includes a Postgres service with credentials that match your `.env`.
+> ✅ Ensure `docker-compose.yml` contains a `postgres` service with matching credentials from your `.env`.
 
-#### Create a virtual environment and install dependencies
+---
+
+#### 🐍 Create virtual environment & install dependencies
 
 **Mac/Linux/WSL:**
 
@@ -46,9 +57,11 @@ vibe-code-env\Scripts\activate
 pip install -r requirements.txt
 ```
 
-#### Configure environment variables
+---
 
-Create a `.env` file in the root directory with the following content:
+#### 🛠 Configure environment variables
+
+Create a `.env` file in the root directory:
 
 ```env
 HOST="127.0.0.1"
@@ -56,41 +69,59 @@ DB_URL="postgresql://vibe_coder_dev:password@localhost:5432/postgres"
 OPENAI_API_KEY=
 ```
 
-#### Start the FastAPI server
+> 🔐 Paste your actual OpenAI API key in the `OPENAI_API_KEY` field.
 
-Once your environment is activated and dependencies are installed, run:
+---
+
+#### 🚦 Start FastAPI server
 
 ```bash
 uvicorn api:app --reload
 ```
 
-This will start the backend at:
-**[http://localhost:8000](http://localhost:8000)**
+Your backend will be live at:  
+**http://localhost:8000**
 
 ---
 
-### Frontend Setup (Next.js or other JS interface)
+### 💻 Frontend Setup (Next.js UI)
 
-Navigate to the `interface` folder and install dependencies:
+Navigate to the interface directory and install dependencies:
 
 ```bash
 cd interface
 npm install
 ```
 
-#### Configure environment variables
+#### 🌐 Configure frontend environment variables
 
-Create a `.env.local` file in the `interface` folder with the following content:
+Create `.env.local` inside the `interface` folder:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
 
-#### Start the frontend server
+#### ▶️ Start the frontend server
 
 ```bash
 npm run dev
 ```
 
-This will start the frontend at:
-**[http://localhost:3000](http://localhost:3000)**
+Your frontend will be available at:  
+**http://localhost:3000**
+
+---
+
+## 📦 Tech Stack
+
+- **Frontend**: Next.js, Tailwind CSS
+- **Backend**: FastAPI, LangGraph, LangChain
+- **Database**: PostgreSQL (via Docker)
+- **LLM**: OpenAI GPT
+- **Infra**: Docker, Uvicorn
+
+---
+
+## 🧪 Example Prompt
+
+> "Create a project that displays a form with email and password fields, and shows a welcome message after submission."
